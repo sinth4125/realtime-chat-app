@@ -17,17 +17,19 @@ const server = app.listen(process.env.PORT || 3000, () => {
 const io = socketio(server);
 
 io.on("connection", socket => {
-  console.log("New user connected");
+  console.log("New user connected",socket.id);
 
   socket.username = "Anonymous"
 
   socket.on("change_username", data => {
     socket.username = data.username
+    console.log("change username",socket.username);
+
   })
 
   // handle the new message event
   socket.on("new_message", data => {
-    console.log("new messsage");
+    console.log("new messsage",data.message);
     io.sockets.emit("receive_message", { message: data.message, username: socket.username})
   })
 
