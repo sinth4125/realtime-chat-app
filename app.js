@@ -27,7 +27,7 @@ io.on("connection", socket => {
 
   })
 
-  // handle the new message event
+  // handle the new message eventf
   socket.on("new_message", data => {
     console.log("new messsage",data.message);
     io.sockets.emit("receive_message", { message: data.message, username: socket.username})
