@@ -2,7 +2,7 @@
 
 (function connect() {
     let socket = io.connect("http://localhost:3000")
-
+    console.log(socket);
     let username = document.querySelector('#username');
     let usernameBtn = document.querySelector('#usernameBtn');
     let curUsername = document.querySelector('.card-header');
