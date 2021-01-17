@@ -20,6 +20,8 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
+
+
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log("server is running...");
 });
@@ -30,6 +32,10 @@ const io = socketio(server);
 io.on("connection", socket => {
   console.log("New user connected", socket.id);
 
+  setInterval(function() {
+    var currentDate = new Date();
+    io.sockets.emit('clock',{currentDate:currentDate});
+  },1000);
 
   pool.query(`select * from socket order by socket_id desc limit 25`)
     .then(res => {
@@ -49,18 +55,19 @@ io.on("connection", socket => {
 
   // handle the new message eventf
   socket.on("new_message", data => {
-    console.log("new messsage", data.message);
-    pool.query(`INSERT INTO socket (username,message_p) VALUES ('${socket.username}', '${data.message}')`)
+     console.log("new messsage", data.date);
+
+    pool.query(`INSERT INTO socket (username,message_p,date) VALUES ('${socket.username}', '${data.message}','${data.date}')`)
       .then(res => {
-        // console.log(res)
+        //console.log(res)
         pool.query(`select * from socket order by socket_id desc limit 25`)
         .then(res => {
           io.sockets.emit("receive_message", { data: res.rows })
         })
-        .catch(err => console.error('Error executing query', err.stack))
+        .catch(err => console.error('Error executing select', err.stack))
     
       })
-      .catch(err => console.error('Error executing query', err.stack));
+      .catch(err => console.error('Error executing INSERT', err.stack));
   })
 
 
