@@ -55,7 +55,7 @@ io.on("connection", socket => {
 
   // handle the new message eventf
   socket.on("new_message", data => {
-     console.log("new messsage", data.date);
+     console.log("new messsage user :",socket.username, data.message);
 
     pool.query(`INSERT INTO socket (username,message_p,date) VALUES ('${socket.username}', '${data.message}','${data.date}')`)
       .then(res => {
