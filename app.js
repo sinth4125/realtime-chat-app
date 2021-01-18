@@ -32,12 +32,12 @@ const io = socketio(server);
 io.on("connection", socket => {
   console.log("New user connected", socket.id);
 
-  setInterval(function() {
-    var currentDate = new Date();
-    io.sockets.emit('clock',{currentDate:currentDate});
-  },1000);
+  // setInterval(function() {
+  //   var currentDate = new Date();
+  //   io.sockets.emit('clock',{currentDate:currentDate});
+  // },1000);
 
-  pool.query(`select * from socket order by socket_id desc limit 25`)
+  pool.query(`select *,TO_CHAR(date,  'DD-MM-YYYY HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
     .then(res => {
       io.sockets.emit("start_message", { data: res.rows })
     })
@@ -60,7 +60,7 @@ io.on("connection", socket => {
     pool.query(`INSERT INTO socket (username,message_p,date) VALUES ('${socket.username}', '${data.message}','${data.date}')`)
       .then(res => {
         //console.log(res)
-        pool.query(`select * from socket order by socket_id desc limit 25`)
+        pool.query(`select *,TO_CHAR(date,  'DD-MM-YYYY HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
         .then(res => {
           io.sockets.emit("receive_message", { data: res.rows })
         })
