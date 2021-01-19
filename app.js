@@ -37,7 +37,7 @@ io.on("connection", socket => {
   //   io.sockets.emit('clock',{currentDate:currentDate});
   // },1000);
 
-  pool.query(`select *,TO_CHAR(date,  'DD-MM-YYYY HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
+  pool.query(`select *,TO_CHAR(date, 'YYYY-MM-DD HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
     .then(res => {
       io.sockets.emit("start_message", { data: res.rows })
     })
