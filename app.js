@@ -62,7 +62,7 @@ io.on("connection", socket => {
         //console.log(res)
         pool.query(`select *,TO_CHAR(date,  'DD-MM-YYYY HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
         .then(res => {
-          io.sockets.emit("receive_message", { data: res.rows })
+          io.sockets.emit("receive_message", { data: res.rows });
         })
         .catch(err => console.error('Error executing select', err.stack))
     
