@@ -1,7 +1,12 @@
 const express = require("express");
 const socketio = require("socket.io");
-const app = express();
+const chatapp = require("./models/chatapp");
+const Sequelize = require("sequelize");
 
+
+const cors = require("cors")
+const app = express();
+app.use(cors())
 const { Pool } = require('pg');
 
 const pool = new Pool({
@@ -29,21 +34,17 @@ const server = app.listen(process.env.PORT || 3000, () => {
 // Initialize socket for the server
 const io = socketio(server);
 
-io.on("connection", socket => {
+io.on("connection", async socket => {
   console.log("New user connected", socket.id);
 
   // setInterval(function() {
   //   var currentDate = new Date();
   //   io.sockets.emit('clock',{currentDate:currentDate});
   // },1000);
+  const selectall = await chatapp.findAll({ order: Sequelize.literal("id DESC") });
+  io.sockets.emit("start_messagetest", { test: selectall })
 
-  pool.query(`select *,TO_CHAR(date, 'YYYY-MM-DD HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
-    .then(res => {
-      io.sockets.emit("start_message", { data: res.rows })
-    })
-    .catch(err => console.error('Error executing query', err.stack))
 
-    
   socket.username = "Anonymous"
 
 
@@ -54,20 +55,18 @@ io.on("connection", socket => {
   
 
   // handle the new message eventf
-  socket.on("new_message", data => {
+  socket.on("new_message", async data => {
      console.log("new messsage user :",socket.username, data.message);
-
-    pool.query(`INSERT INTO socket (username,message_p,date) VALUES ('${socket.username}', '${data.message}','${data.date}')`)
-      .then(res => {
-        //console.log(res)
-        pool.query(`select *,TO_CHAR(date,  'DD-MM-YYYY HH24:MI:SS') as datetime from socket order by socket_id desc limit 25`)
-        .then(res => {
-          io.sockets.emit("receive_message", { data: res.rows });
-        })
-        .catch(err => console.error('Error executing select', err.stack))
     
-      })
-      .catch(err => console.error('Error executing INSERT', err.stack));
+     let data1 = {
+      username:socket.username,
+      msg:data.message,
+     }
+     let result = await chatapp.create(data1);
+     //console.log(result)
+
+     const selectall = await chatapp.findAll({ order: Sequelize.literal("id DESC") });
+     io.sockets.emit("receive_message", { data: selectall });
   })
 
 
